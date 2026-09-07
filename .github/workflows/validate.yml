@@ -46,7 +46,8 @@ jobs:
           $archive = Join-Path $state 'source.zip'
           $sourceRoot = Join-Path $state 'source'
           $head = (git rev-parse HEAD).Trim()
-          git archive --format=zip ("--output=$archive") $head
+          # Archive exact committed bytes, not Windows runner CRLF conversion.
+          git -c core.autocrlf=false archive --format=zip ("--output=$archive") $head
           if ($LASTEXITCODE -ne 0) { throw 'clean source export failed' }
           Expand-Archive -LiteralPath $archive -DestinationPath $sourceRoot
           Remove-Item -LiteralPath $archive
