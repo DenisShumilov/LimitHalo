@@ -1,0 +1,31 @@
+{
+  "receivedAt": 2000000000,
+  "requestId": "0123456789abcdef0123456789abcdef",
+  "sequence": 7,
+  "accepted": {
+    "protocol": "ai-usage-claude-broker/1",
+    "requestId": "0123456789abcdef0123456789abcdef",
+    "acquisitionSequence": 7,
+    "status": "OK",
+    "acquiredAtUnixSeconds": 2000000000,
+    "durationMs": 25,
+    "credentialVersion": {"credentialLastWrittenFileTime": "133713371337", "credentialBlobSize": 2048},
+    "transportDiagnostic": null,
+    "metrics": {
+      "claude_session": {"remainingMicros": 75000000, "resetUnixSeconds": 2000017000},
+      "claude_weekly_all": {"remainingMicros": 40000000, "resetUnixSeconds": 2000600000},
+      "claude_fable_weekly": {"remainingMicros": 91000000, "resetUnixSeconds": 2000500000}
+    }
+  },
+  "failure": {
+    "protocol": "ai-usage-claude-broker/1",
+    "requestId": "0123456789abcdef0123456789abcdef",
+    "acquisitionSequence": 7,
+    "status": "TRANSIENT",
+    "acquiredAtUnixSeconds": 2000000000,
+    "durationMs": 25,
+    "credentialVersion": null,
+    "transportDiagnostic": {"endpoint": "usage", "phase": "receive", "class": "timeout"},
+    "metrics": {"claude_session": null, "claude_weekly_all": null, "claude_fable_weekly": null}
+  }
+}

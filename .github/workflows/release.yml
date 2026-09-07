@@ -1,0 +1,191 @@
+name: Build unsigned candidate bundle
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: Exact lowercase commit SHA to build
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unsigned-candidate-${{ inputs.source_ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: ${{ github.ref_protected }}
+    runs-on: windows-2025
+    timeout-minutes: 45
+    steps:
+      - name: Require a full commit SHA
+        shell: pwsh
+        env:
+          SOURCE_REF: ${{ inputs.source_ref }}
+        run: |
+          if ($env:SOURCE_REF -cnotmatch '^[0-9a-f]{40}$') { throw 'source_ref must be a lowercase full commit SHA' }
+
+      - name: Check out the exact source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.source_ref }}
+          persist-credentials: false
+
+      - name: Select exact Python
+        id: setup-python
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: '3.12.13'
+          architecture: x64
+          update-environment: false
+
+      - name: Create clean source export and canonical identity
+        shell: pwsh
+        env:
+          SOURCE_REF: ${{ inputs.source_ref }}
+          PYTHON_EXE: ${{ steps.setup-python.outputs.python-path }}
+        run: |
+          $contract = '0d01b424176f389cc9bb1e602dc0574ed1f2e16a5d6c0da62cd4fd2473e66962'
+          $python = (Resolve-Path -LiteralPath $env:PYTHON_EXE).Path
+          $head = (git rev-parse HEAD).Trim()
+          if ($LASTEXITCODE -ne 0 -or $head -cne $env:SOURCE_REF) { throw 'checkout does not match source_ref' }
+          if (-not [string]::IsNullOrWhiteSpace((git status --porcelain=v1 --untracked-files=all | Out-String))) { throw 'checkout is not clean' }
+          $state = Join-Path $env:RUNNER_TEMP ('limit-halo-' + $env:GITHUB_RUN_ID + '-' + $env:GITHUB_RUN_ATTEMPT)
+          if (Test-Path -LiteralPath $state) { throw 'Authorized state root already exists' }
+          New-Item -ItemType Directory -Path $state | Out-Null
+          $archive = Join-Path $state 'source.zip'
+          $sourceRoot = Join-Path $state 'source'
+          git archive --format=zip ("--output=$archive") $head
+          if ($LASTEXITCODE -ne 0) { throw 'clean source export failed' }
+          Expand-Archive -LiteralPath $archive -DestinationPath $sourceRoot
+          Remove-Item -LiteralPath $archive
+          $sourceManifest = Join-Path $state 'source-manifest.json'
+          $manifestTool = Join-Path $sourceRoot 'packaging/scripts/source_manifest.py'
+          $tree = (& $python -I -B $manifestTool create --root $sourceRoot --manifest $sourceManifest --contract-sha256 $contract).Trim()
+          if ($LASTEXITCODE -ne 0 -or $tree -cnotmatch '^[0-9a-f]{64}$') { throw 'source manifest creation failed' }
+          $verified = (& $python -I -B $manifestTool verify --root $sourceRoot --manifest $sourceManifest --contract-sha256 $contract).Trim()
+          if ($LASTEXITCODE -ne 0 -or $verified -cne $tree) { throw 'source manifest verification failed' }
+          "LIMIT_HALO_STATE_ROOT=$state" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIMIT_HALO_SOURCE_ROOT=$sourceRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIMIT_HALO_SOURCE_MANIFEST=$sourceManifest" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIMIT_HALO_SOURCE_IDENTITY=sha256:$tree" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Acquire exact wheelhouse
+        shell: pwsh
+        env:
+          PYTHON_EXE: ${{ steps.setup-python.outputs.python-path }}
+        run: |
+          $python = (Resolve-Path -LiteralPath $env:PYTHON_EXE).Path
+          $wheelhouse = Join-Path $env:LIMIT_HALO_STATE_ROOT 'wheelhouse'
+          $acquisitionTemp = Join-Path $env:LIMIT_HALO_STATE_ROOT 'wheel-acquisition-temp'
+          $pipCache = Join-Path $env:LIMIT_HALO_STATE_ROOT 'pip-acquisition-cache'
+          New-Item -ItemType Directory -Path $wheelhouse, $acquisitionTemp, $pipCache | Out-Null
+          $env:TEMP = $acquisitionTemp
+          $env:TMP = $acquisitionTemp
+          $env:PIP_CACHE_DIR = $pipCache
+          $env:PIP_CONFIG_FILE = 'NUL'
+          & $python -I -B -m pip download --disable-pip-version-check --only-binary=:all: --no-deps --dest $wheelhouse `
+            altgraph==0.17.5 packaging==26.3 pefile==2024.8.26 pillow==12.3.0 `
+            pyinstaller==6.21.0 pyinstaller-hooks-contrib==2026.6 pywin32-ctypes==0.2.3 setuptools==83.0.0
+          if ($LASTEXITCODE -ne 0) { throw 'wheelhouse acquisition failed' }
+          & (Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'packaging/scripts/Assert-PythonBuildLock.ps1') `
+            -LockPath (Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'requirements/python-build.lock.json') `
+            -WheelhouseRoot $wheelhouse | Out-Null
+          $lockFixtures = Join-Path $env:LIMIT_HALO_STATE_ROOT 'build-lock-fixtures'
+          New-Item -ItemType Directory -Path $lockFixtures | Out-Null
+          & (Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'packaging/scripts/Test-BuildLocks.ps1') `
+            -RepositoryRoot $env:LIMIT_HALO_SOURCE_ROOT `
+            -WheelhouseRoot $wheelhouse `
+            -TestOutputRoot $lockFixtures `
+            -AuthorizedStateRoot $env:LIMIT_HALO_STATE_ROOT | Out-Null
+          "LIMIT_HALO_WHEELHOUSE=$wheelhouse" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Acquire exact signed Inno Setup on disposable hosted runner
+        shell: pwsh
+        env:
+          PYTHON_EXE: ${{ steps.setup-python.outputs.python-path }}
+        run: |
+          $innoRoot = Join-Path $env:LIMIT_HALO_STATE_ROOT 'inno'
+          New-Item -ItemType Directory -Path $innoRoot | Out-Null
+          $lock = Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'requirements/inno-setup.lock.json'
+          $download = Join-Path $innoRoot 'innosetup-7.1.0-x64.exe'
+          $install = Join-Path $innoRoot 'installed'
+          $receipt = Join-Path $innoRoot 'hosted-acquisition-receipt.json'
+          $python = (Resolve-Path -LiteralPath $env:PYTHON_EXE).Path
+          $result = & (Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'packaging/scripts/Acquire-HostedInno.ps1') `
+            -AuthorizedStateRoot $env:LIMIT_HALO_STATE_ROOT `
+            -InstallerLockPath $lock `
+            -InstallerPath $download `
+            -InstallRoot $install `
+            -ReceiptPath $receipt `
+            -PythonExe $python
+          if ($null -eq $result -or $result.status -cne 'PASS') { throw 'hosted Inno acquisition failed' }
+          "LIMIT_HALO_ISCC=$($result.compiler)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIMIT_HALO_INNO_RECEIPT=$receipt" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Validate and build without acquisition
+        shell: pwsh
+        env:
+          PYTHON_EXE: ${{ steps.setup-python.outputs.python-path }}
+          PIP_NO_INDEX: '1'
+          HTTP_PROXY: http://127.0.0.1:9
+          HTTPS_PROXY: http://127.0.0.1:9
+          ALL_PROXY: http://127.0.0.1:9
+          NO_PROXY: localhost,127.0.0.1
+        run: |
+          $contract = '0d01b424176f389cc9bb1e602dc0574ed1f2e16a5d6c0da62cd4fd2473e66962'
+          $python = (Resolve-Path -LiteralPath $env:PYTHON_EXE).Path
+          $manifestTool = Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'packaging/scripts/source_manifest.py'
+          $before = (& $python -I -B $manifestTool verify --root $env:LIMIT_HALO_SOURCE_ROOT --manifest $env:LIMIT_HALO_SOURCE_MANIFEST --contract-sha256 $contract).Trim()
+          if ($LASTEXITCODE -ne 0 -or ('sha256:' + $before) -cne $env:LIMIT_HALO_SOURCE_IDENTITY) { throw 'pre-build source identity mismatch' }
+          $bootstrapPython = $python
+          $buildVenv = Join-Path $env:LIMIT_HALO_STATE_ROOT 'build-venv'
+          & $bootstrapPython -I -B -m venv $buildVenv
+          if ($LASTEXITCODE -ne 0) { throw 'build environment creation failed' }
+          $python = Join-Path $buildVenv 'Scripts/python.exe'
+          & $python -I -B -m pip install --disable-pip-version-check --no-index `
+            --find-links $env:LIMIT_HALO_WHEELHOUSE --require-hashes `
+            -r (Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'requirements/build-requirements.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'offline build dependency installation failed' }
+          $fixtureRoot = Join-Path $env:LIMIT_HALO_STATE_ROOT 'release-fixtures'
+          & (Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'packaging/scripts/Test-ReleaseFragment.ps1') `
+            -RepositoryRoot $env:LIMIT_HALO_SOURCE_ROOT `
+            -AuthorizedStateRoot $env:LIMIT_HALO_STATE_ROOT `
+            -TestOutputRoot $fixtureRoot `
+            -PythonExe $python | Out-Null
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
+          $out = Join-Path $env:LIMIT_HALO_STATE_ROOT 'output'
+          & (Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'packaging/scripts/Build-Release.ps1') `
+            -AppSourceRoot $env:LIMIT_HALO_SOURCE_ROOT `
+            -OutputRoot $out `
+            -WheelhouseRoot $env:LIMIT_HALO_WHEELHOUSE `
+            -PythonExe $python `
+            -VsWherePath $vswhere `
+            -InnoSetupCompiler $env:LIMIT_HALO_ISCC `
+            -InnoProvenancePath $env:LIMIT_HALO_INNO_RECEIPT `
+            -AuthorizedStateRoot $env:LIMIT_HALO_STATE_ROOT `
+            -SourceManifestPath $env:LIMIT_HALO_SOURCE_MANIFEST `
+            -SourceIdentity $env:LIMIT_HALO_SOURCE_IDENTITY `
+            -RunNativeSelfTest | Out-Null
+          $after = (& $python -I -B $manifestTool verify --root $env:LIMIT_HALO_SOURCE_ROOT --manifest $env:LIMIT_HALO_SOURCE_MANIFEST --contract-sha256 $contract).Trim()
+          if ($LASTEXITCODE -ne 0 -or $after -cne $before) { throw 'source changed during build' }
+          $releaseRoot = Join-Path $out 'release'
+          & (Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'packaging/scripts/Verify-Release.ps1') -ReleaseRoot $releaseRoot -PythonExe $python
+          "LIMIT_HALO_OUTPUT=$releaseRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload the unsigned candidate for inspection
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: LimitHalo-unsigned-${{ inputs.source_ref }}
+          path: ${{ env.LIMIT_HALO_OUTPUT }}
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Publication is deliberately absent
+        shell: pwsh
+        run: |
+          Write-Host 'This workflow does not create, draft, or publish a GitHub Release.'
+          Write-Host 'Hosted execution, signing, and publication remain separately observed gates.'

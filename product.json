@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0.0",
+  "displayName": "LimitHalo",
+  "displayNameStatus": "temporary-working-name",
+  "internalProductId": "AILimitsWidget",
+  "version": "1.0.1",
+  "architecture": "x64",
+  "publisher": "LimitHalo contributors",
+  "repositorySlug": "LimitHalo",
+  "executableName": "AILimitsWidget.exe",
+  "brokerExecutableName": "ClaudeUsageBroker.exe",
+  "installerAppId": "{{A858F5C8-BBD1-4B0F-B5BD-FB812A5EEA73}}",
+  "settingsRelativePath": "AILimitsWidget/config.json",
+  "installRelativePath": "Programs/AILimitsWidget",
+  "copyright": "Copyright (c) 2026 LimitHalo contributors",
+  "minimumWindows": "Windows 10 x64",
+  "releaseChannel": "unsigned-community-candidate",
+  "installerArchitecture": "signing-ready-explicitly-unsigned-preview",
+  "aiAgentEntryPoint": "LimitHalo-Agent.ps1",
+  "aiAgentProtocol": "limit-halo-agent/1"
+}

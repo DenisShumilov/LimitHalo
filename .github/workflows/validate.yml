@@ -1,0 +1,130 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fixture-validation:
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Select exact Python
+        id: setup-python
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: '3.12.13'
+          architecture: x64
+          update-environment: false
+
+      - name: Create clean redirected source tree
+        shell: pwsh
+        env:
+          PYTHON_EXE: ${{ steps.setup-python.outputs.python-path }}
+        run: |
+          $contract = '0d01b424176f389cc9bb1e602dc0574ed1f2e16a5d6c0da62cd4fd2473e66962'
+          $python = (Resolve-Path -LiteralPath $env:PYTHON_EXE).Path
+          if (-not [string]::IsNullOrWhiteSpace((git status --porcelain=v1 --untracked-files=all | Out-String))) { throw 'checkout is not clean' }
+          $state = Join-Path $env:RUNNER_TEMP ('limit-halo-validate-' + $env:GITHUB_RUN_ID + '-' + $env:GITHUB_RUN_ATTEMPT)
+          if (Test-Path -LiteralPath $state) { throw 'Authorized state root already exists' }
+          New-Item -ItemType Directory -Path $state | Out-Null
+          $archive = Join-Path $state 'source.zip'
+          $sourceRoot = Join-Path $state 'source'
+          $head = (git rev-parse HEAD).Trim()
+          git archive --format=zip ("--output=$archive") $head
+          if ($LASTEXITCODE -ne 0) { throw 'clean source export failed' }
+          Expand-Archive -LiteralPath $archive -DestinationPath $sourceRoot
+          Remove-Item -LiteralPath $archive
+          $sourceManifest = Join-Path $state 'source-manifest.json'
+          $manifestTool = Join-Path $sourceRoot 'packaging/scripts/source_manifest.py'
+          $tree = (& $python -I -B $manifestTool create --root $sourceRoot --manifest $sourceManifest --contract-sha256 $contract).Trim()
+          if ($LASTEXITCODE -ne 0 -or $tree -cnotmatch '^[0-9a-f]{64}$') { throw 'source manifest creation failed' }
+          "LIMIT_HALO_STATE_ROOT=$state" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIMIT_HALO_SOURCE_ROOT=$sourceRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIMIT_HALO_SOURCE_MANIFEST=$sourceManifest" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIMIT_HALO_SOURCE_TREE=$tree" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Acquire exact validation wheelhouse
+        shell: pwsh
+        env:
+          PYTHON_EXE: ${{ steps.setup-python.outputs.python-path }}
+        run: |
+          $python = (Resolve-Path -LiteralPath $env:PYTHON_EXE).Path
+          $wheelhouse = Join-Path $env:LIMIT_HALO_STATE_ROOT 'wheelhouse'
+          $acquisitionTemp = Join-Path $env:LIMIT_HALO_STATE_ROOT 'wheel-acquisition-temp'
+          $pipCache = Join-Path $env:LIMIT_HALO_STATE_ROOT 'pip-acquisition-cache'
+          New-Item -ItemType Directory -Path $wheelhouse, $acquisitionTemp, $pipCache | Out-Null
+          $env:TEMP = $acquisitionTemp
+          $env:TMP = $acquisitionTemp
+          $env:PIP_CACHE_DIR = $pipCache
+          $env:PIP_CONFIG_FILE = 'NUL'
+          & $python -I -B -m pip download --disable-pip-version-check --only-binary=:all: --no-deps --dest $wheelhouse `
+            altgraph==0.17.5 packaging==26.3 pefile==2024.8.26 pillow==12.3.0 `
+            pyinstaller==6.21.0 pyinstaller-hooks-contrib==2026.6 pywin32-ctypes==0.2.3 setuptools==83.0.0
+          if ($LASTEXITCODE -ne 0) { throw 'wheelhouse acquisition failed' }
+          & (Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'packaging/scripts/Assert-PythonBuildLock.ps1') `
+            -LockPath (Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'requirements/python-build.lock.json') `
+            -WheelhouseRoot $wheelhouse | Out-Null
+          $lockFixtures = Join-Path $env:LIMIT_HALO_STATE_ROOT 'build-lock-fixtures'
+          New-Item -ItemType Directory -Path $lockFixtures | Out-Null
+          & (Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'packaging/scripts/Test-BuildLocks.ps1') `
+            -RepositoryRoot $env:LIMIT_HALO_SOURCE_ROOT `
+            -WheelhouseRoot $wheelhouse `
+            -TestOutputRoot $lockFixtures `
+            -AuthorizedStateRoot $env:LIMIT_HALO_STATE_ROOT | Out-Null
+          "LIMIT_HALO_WHEELHOUSE=$wheelhouse" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Run static parser and redirected fixture controls
+        shell: pwsh
+        env:
+          PYTHON_EXE: ${{ steps.setup-python.outputs.python-path }}
+          PIP_NO_INDEX: '1'
+          HTTP_PROXY: http://127.0.0.1:9
+          HTTPS_PROXY: http://127.0.0.1:9
+          ALL_PROXY: http://127.0.0.1:9
+          NO_PROXY: localhost,127.0.0.1
+        run: |
+          $bootstrapPython = (Resolve-Path -LiteralPath $env:PYTHON_EXE).Path
+          $venv = Join-Path $env:LIMIT_HALO_STATE_ROOT 'validation-venv'
+          & $bootstrapPython -I -B -m venv $venv
+          if ($LASTEXITCODE -ne 0) { throw 'validation environment creation failed' }
+          $python = Join-Path $venv 'Scripts/python.exe'
+          & $python -I -B -m pip install --disable-pip-version-check --no-index `
+            --find-links $env:LIMIT_HALO_WHEELHOUSE --require-hashes `
+            -r (Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'requirements/build-requirements.txt')
+          if ($LASTEXITCODE -ne 0) { throw 'offline validation dependency installation failed' }
+          $offlineRoot = Join-Path $env:LIMIT_HALO_STATE_ROOT 'offline-tests'
+          & (Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'scripts/run_offline_tests.ps1') `
+            -AuthorizedStateRoot $env:LIMIT_HALO_STATE_ROOT `
+            -TestOutputRoot $offlineRoot `
+            -PythonExe $python
+          $fixtureRoot = Join-Path $env:LIMIT_HALO_STATE_ROOT 'release-fixtures'
+          & (Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'packaging/scripts/Test-ReleaseFragment.ps1') `
+            -RepositoryRoot $env:LIMIT_HALO_SOURCE_ROOT `
+            -AuthorizedStateRoot $env:LIMIT_HALO_STATE_ROOT `
+            -TestOutputRoot $fixtureRoot `
+            -PythonExe $python | Out-Null
+          $contract = '0d01b424176f389cc9bb1e602dc0574ed1f2e16a5d6c0da62cd4fd2473e66962'
+          $manifestTool = Join-Path $env:LIMIT_HALO_SOURCE_ROOT 'packaging/scripts/source_manifest.py'
+          $after = (& $python -I -B $manifestTool verify --root $env:LIMIT_HALO_SOURCE_ROOT --manifest $env:LIMIT_HALO_SOURCE_MANIFEST --contract-sha256 $contract).Trim()
+          if ($LASTEXITCODE -ne 0 -or $after -cne $env:LIMIT_HALO_SOURCE_TREE) { throw 'validation modified source' }
+
+      - name: Confirm repository remains fixture-only
+        shell: pwsh
+        run: |
+          if (Test-Path Env:ANTHROPIC_API_KEY) { throw 'Provider secrets are forbidden in validation' }
+          if (Test-Path Env:OPENAI_API_KEY) { throw 'Provider secrets are forbidden in validation' }
+          if (Test-Path Env:CLAUDE_CODE_OAUTH_TOKEN) { throw 'Provider secrets are forbidden in validation' }

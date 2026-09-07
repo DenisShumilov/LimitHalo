@@ -1,0 +1,95 @@
+{
+  "observedAt": 2000000000,
+  "accepted": [
+    {
+      "name": "primary-only-15-minute",
+      "result": {
+        "rateLimits": {
+          "limitId": "codex",
+          "primary": {"windowDurationMins": 15, "usedPercent": 7, "resetsAt": 2000000800},
+          "secondary": null
+        }
+      },
+      "durations": [15]
+    },
+    {
+      "name": "primary-secondary-300-10080",
+      "result": {
+        "rateLimits": {
+          "limitId": "codex",
+          "primary": {"windowDurationMins": 300, "usedPercent": 31, "resetsAt": 2000017000},
+          "secondary": {"windowDurationMins": 10080, "usedPercent": 64, "resetsAt": 2000600000}
+        }
+      },
+      "durations": [300, 10080]
+    },
+    {
+      "name": "reversed-order",
+      "result": {
+        "rateLimits": {
+          "limitId": "codex",
+          "primary": {"windowDurationMins": 10080, "usedPercent": 64, "resetsAt": 2000600000},
+          "secondary": {"windowDurationMins": 300, "usedPercent": 31, "resetsAt": 2000017000}
+        }
+      },
+      "durations": [300, 10080]
+    },
+    {
+      "name": "additive-window-metadata",
+      "result": {
+        "rateLimits": {
+          "limitId": "codex",
+          "primary": {"windowDurationMins": 300, "usedPercent": 1, "resetsAt": 2000017000, "raw": "ignored"}
+        }
+      },
+      "durations": [300]
+    },
+    {
+      "name": "exact-by-limit-id",
+      "result": {
+        "rateLimits": {"limitId": "unrelated", "primary": null},
+        "rateLimitsByLimitId": {
+          "codex": {
+            "limitId": "codex",
+            "primary": {"windowDurationMins": 300, "usedPercent": 10, "resetsAt": 2000017000}
+          }
+        }
+      },
+      "durations": [300]
+    }
+  ],
+  "rejected": [
+    {
+      "name": "duplicate-duration",
+      "result": {
+        "rateLimits": {
+          "limitId": "codex",
+          "primary": {"windowDurationMins": 300, "usedPercent": 1, "resetsAt": 2000017000},
+          "secondary": {"windowDurationMins": 300, "usedPercent": 2, "resetsAt": 2000018000}
+        }
+      }
+    },
+    {
+      "name": "malformed-duration",
+      "result": {
+        "rateLimits": {
+          "limitId": "codex",
+          "primary": {"windowDurationMins": "300", "usedPercent": 1, "resetsAt": 2000017000}
+        }
+      }
+    },
+    {
+      "name": "unrelated-limit-id",
+      "result": {
+        "rateLimits": {
+          "limitId": "other",
+          "primary": {"windowDurationMins": 300, "usedPercent": 1, "resetsAt": 2000017000}
+        }
+      }
+    },
+    {
+      "name": "zero-windows",
+      "result": {"rateLimits": {"limitId": "codex", "primary": null, "secondary": null}}
+    }
+  ]
+}

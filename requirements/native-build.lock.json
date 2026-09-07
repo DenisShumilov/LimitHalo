@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0.0",
+  "visualStudioMajor": "17",
+  "visualStudioSnapshot": "17.14",
+  "msvcToolsVersion": "14.44.35207",
+  "windowsSdkVersion": "10.0.26100.0",
+  "architecture": "x64",
+  "toolHashes": {
+    "cl.exe": "a80f5e7a24049a8f9a8931f83fc3d13ca417ad901e074c50cca71fcb12ba10be",
+    "link.exe": "e388eb34fe4d280633609f6acec12a3e73c288f8b69ce402c3d24c0d0f5524f3",
+    "rc.exe": "43da1503c262c30894c851589bf0155f8365d77e63a5f7bc13982320e3a6b42d",
+    "mt.exe": "1b8a272d586a9ab53ac2ccd457a88bd0210d7d7ac3daea5b34743cc2afe73b26",
+    "kernel32.lib": "341c7d56125a03b458e4d5093e4c79b33123ccfdfd610fe236937b8e6f3134bb",
+    "advapi32.lib": "a0ea53377e6de11c5fdc07e72af11d22d8fa613cecc6ccb1b6de43490392eadc",
+    "winhttp.lib": "6873f0b8893e8e7bd86cb7a8310631b3fcde99a85486196fe61ce9f1a352906a",
+    "wer.lib": "d05fa4fbaa1702cb0e909b4fce36da42a328a99d1d700f214d142a142157dff2",
+    "crypt32.lib": "eccee5cb58221f1d9eabecd38f7eb66f323b7e63e756593d403475ac71fd4a04",
+    "bcrypt.lib": "9fe31df255d17b0339391ff80a71bf2c5d442cc301bd2fe6eeea00b626f10785",
+    "libcmt.lib": "8fe40dd342b90b35d62b8f5d55b4e92df7785c122976618365cfe3b014cc857a",
+    "libcpmt.lib": "da86944db1497552c378e6252a7177fbefbdaeba4e69a6457de4db7fb2d235de",
+    "libvcruntime.lib": "e4f8daf356d63592ff6d6f7ad90c8c9da4c1230273ad113a9a2b56afd6bfcb04",
+    "libucrt.lib": "2b247d6a27c22c520c34134b8acf2da3366175a4690886927a51929f37725fdd",
+    "oldnames.lib": "35bd82cfb02a0146ff9c0ca6bf7dbde61d49c6d4f3493befe584218c370ff41d"
+  },
+  "compilerFlags": ["/std:c++20", "/O2", "/GS", "/guard:cf", "/Qspectre", "/Brepro", "/W4", "/WX"],
+  "linkerFlags": ["/DYNAMICBASE", "/NXCOMPAT", "/HIGHENTROPYVA", "/GUARD:CF", "/CETCOMPAT", "/Brepro", "/NODEFAULTLIB:uuid.lib"]
+}

@@ -1,0 +1,943 @@
+{
+  "aiEntry": {
+    "actions": [
+      "Auto",
+      "Status",
+      "Install",
+      "Repair"
+    ],
+    "file": "LimitHalo-Agent.ps1",
+    "singleCommand": true
+  },
+  "assets": {
+    "app": "0fa0239e5e4d0dc347eee1bbe6a953654d805bb52d2bbc9e54bbb27f019a1284",
+    "claude": "4dbf0aa77200058e8cb152e990597a95a99963db85632bf8abd8343a249e898e",
+    "codex": "375016542ebe78b63c7f36b8f6aee3058f2b706d861e5153fd74f9c27f63b8b7"
+  },
+  "config": {
+    "knownFields": [
+      "alerts",
+      "autostart",
+      "claudeConsent",
+      "colors",
+      "locale",
+      "providers",
+      "schemaVersion",
+      "topmost",
+      "view",
+      "x",
+      "y"
+    ],
+    "safeUnknownTopLevelRoundTrips": true
+  },
+  "interaction": {
+    "actionPrecedenceAtFiveDip": true,
+    "outsidePassThrough": true,
+    "wholeContourDrag": true
+  },
+  "languages": {
+    "freshDefault": "en-US",
+    "ukrainianSelectable": true
+  },
+  "layouts": [
+    {
+      "baselines": [
+        31,
+        56
+      ],
+      "contourAcceptedCells": 21675,
+      "contourSha256": "9b9ba31e20253947abea6e2a803a4a2763a30a81b2c47d1440c1a68c845aaee5",
+      "dpi": 96,
+      "fontSizes": [
+        17,
+        12
+      ],
+      "hitRects": [
+        [
+          2,
+          12,
+          120,
+          72
+        ],
+        [
+          106,
+          12,
+          362,
+          72
+        ]
+      ],
+      "iconSize": 28,
+      "icons": [
+        [
+          "codex",
+          20,
+          42
+        ],
+        [
+          "claude",
+          124,
+          42
+        ]
+      ],
+      "mode": "both-compact",
+      "size": [
+        364,
+        84
+      ],
+      "textX": [
+        41,
+        145,
+        217,
+        289
+      ]
+    },
+    {
+      "baselines": [
+        39,
+        70
+      ],
+      "contourAcceptedCells": 33780,
+      "contourSha256": "21f21436c36186013874e3cfdecb9264b6c5ee61db2bbcfc220c1103ed75dbb2",
+      "dpi": 120,
+      "fontSizes": [
+        21,
+        15
+      ],
+      "hitRects": [
+        [
+          2,
+          15,
+          150,
+          90
+        ],
+        [
+          132,
+          15,
+          452,
+          90
+        ]
+      ],
+      "iconSize": 35,
+      "icons": [
+        [
+          "codex",
+          25,
+          52
+        ],
+        [
+          "claude",
+          155,
+          52
+        ]
+      ],
+      "mode": "both-compact",
+      "size": [
+        455,
+        105
+      ],
+      "textX": [
+        51,
+        181,
+        271,
+        361
+      ]
+    },
+    {
+      "baselines": [
+        46,
+        84
+      ],
+      "contourAcceptedCells": 48519,
+      "contourSha256": "9ab909e228b720be745548ad42e29e3e6d6a6ab2287c5ea217857487f2437d5b",
+      "dpi": 144,
+      "fontSizes": [
+        26,
+        18
+      ],
+      "hitRects": [
+        [
+          3,
+          18,
+          180,
+          108
+        ],
+        [
+          159,
+          18,
+          543,
+          108
+        ]
+      ],
+      "iconSize": 42,
+      "icons": [
+        [
+          "codex",
+          30,
+          63
+        ],
+        [
+          "claude",
+          186,
+          63
+        ]
+      ],
+      "mode": "both-compact",
+      "size": [
+        546,
+        126
+      ],
+      "textX": [
+        62,
+        218,
+        326,
+        434
+      ]
+    },
+    {
+      "baselines": [
+        62,
+        112
+      ],
+      "contourAcceptedCells": 86057,
+      "contourSha256": "3d4246e1a792461b531cdcb2ed786d0cf3b7a81e495c3e8d5d951f1bc5a4532e",
+      "dpi": 192,
+      "fontSizes": [
+        34,
+        24
+      ],
+      "hitRects": [
+        [
+          4,
+          24,
+          240,
+          144
+        ],
+        [
+          212,
+          24,
+          724,
+          144
+        ]
+      ],
+      "iconSize": 56,
+      "icons": [
+        [
+          "codex",
+          40,
+          84
+        ],
+        [
+          "claude",
+          248,
+          84
+        ]
+      ],
+      "mode": "both-compact",
+      "size": [
+        728,
+        168
+      ],
+      "textX": [
+        82,
+        290,
+        434,
+        578
+      ]
+    },
+    {
+      "baselines": [
+        31,
+        56
+      ],
+      "contourAcceptedCells": 26067,
+      "contourSha256": "7cce87da8e4b5262462e3f40a09a827d0fe9525011948ded5fc2bd86dbc65de5",
+      "dpi": 96,
+      "fontSizes": [
+        17,
+        12
+      ],
+      "hitRects": [
+        [
+          2,
+          12,
+          192,
+          72
+        ],
+        [
+          178,
+          12,
+          434,
+          72
+        ]
+      ],
+      "iconSize": 28,
+      "icons": [
+        [
+          "codex",
+          20,
+          42
+        ],
+        [
+          "claude",
+          196,
+          42
+        ]
+      ],
+      "mode": "both-wide",
+      "size": [
+        436,
+        84
+      ],
+      "textX": [
+        41,
+        113,
+        217,
+        289,
+        361
+      ]
+    },
+    {
+      "baselines": [
+        39,
+        70
+      ],
+      "contourAcceptedCells": 40620,
+      "contourSha256": "2d104bb1e54bcabea0115e708788518c270f36c6094374f2df6e119822282334",
+      "dpi": 120,
+      "fontSizes": [
+        21,
+        15
+      ],
+      "hitRects": [
+        [
+          2,
+          15,
+          240,
+          90
+        ],
+        [
+          222,
+          15,
+          542,
+          90
+        ]
+      ],
+      "iconSize": 35,
+      "icons": [
+        [
+          "codex",
+          25,
+          52
+        ],
+        [
+          "claude",
+          245,
+          52
+        ]
+      ],
+      "mode": "both-wide",
+      "size": [
+        545,
+        105
+      ],
+      "textX": [
+        51,
+        141,
+        271,
+        361,
+        451
+      ]
+    },
+    {
+      "baselines": [
+        46,
+        84
+      ],
+      "contourAcceptedCells": 58347,
+      "contourSha256": "6d50d686a1ce0405797e10ba7f3020b2e2533b21791193718ecb0d1e2d56912c",
+      "dpi": 144,
+      "fontSizes": [
+        26,
+        18
+      ],
+      "hitRects": [
+        [
+          3,
+          18,
+          288,
+          108
+        ],
+        [
+          267,
+          18,
+          651,
+          108
+        ]
+      ],
+      "iconSize": 42,
+      "icons": [
+        [
+          "codex",
+          30,
+          63
+        ],
+        [
+          "claude",
+          294,
+          63
+        ]
+      ],
+      "mode": "both-wide",
+      "size": [
+        654,
+        126
+      ],
+      "textX": [
+        62,
+        170,
+        326,
+        434,
+        542
+      ]
+    },
+    {
+      "baselines": [
+        62,
+        112
+      ],
+      "contourAcceptedCells": 103481,
+      "contourSha256": "944e1acf6a026031c3899eca2a78aad8580593ec446da98b8fb0c24247d5a2b8",
+      "dpi": 192,
+      "fontSizes": [
+        34,
+        24
+      ],
+      "hitRects": [
+        [
+          4,
+          24,
+          384,
+          144
+        ],
+        [
+          356,
+          24,
+          868,
+          144
+        ]
+      ],
+      "iconSize": 56,
+      "icons": [
+        [
+          "codex",
+          40,
+          84
+        ],
+        [
+          "claude",
+          392,
+          84
+        ]
+      ],
+      "mode": "both-wide",
+      "size": [
+        872,
+        168
+      ],
+      "textX": [
+        82,
+        226,
+        434,
+        578,
+        722
+      ]
+    },
+    {
+      "baselines": [
+        31,
+        56
+      ],
+      "contourAcceptedCells": 15385,
+      "contourSha256": "ab7bc58269ee2e24b9e2189cc8ca76d6119393c12ba0ad97470216830d0a13d3",
+      "dpi": 96,
+      "fontSizes": [
+        17,
+        12
+      ],
+      "hitRects": [
+        [
+          2,
+          12,
+          258,
+          72
+        ]
+      ],
+      "iconSize": 28,
+      "icons": [
+        [
+          "claude",
+          20,
+          42
+        ]
+      ],
+      "mode": "claude-only",
+      "size": [
+        260,
+        84
+      ],
+      "textX": [
+        41,
+        113,
+        185
+      ]
+    },
+    {
+      "baselines": [
+        39,
+        70
+      ],
+      "contourAcceptedCells": 23972,
+      "contourSha256": "c38fb5810713794d69d2c3210e71dc3dda93837b584128b777e838eceda58161",
+      "dpi": 120,
+      "fontSizes": [
+        21,
+        15
+      ],
+      "hitRects": [
+        [
+          2,
+          15,
+          322,
+          90
+        ]
+      ],
+      "iconSize": 35,
+      "icons": [
+        [
+          "claude",
+          25,
+          52
+        ]
+      ],
+      "mode": "claude-only",
+      "size": [
+        325,
+        105
+      ],
+      "textX": [
+        51,
+        141,
+        231
+      ]
+    },
+    {
+      "baselines": [
+        46,
+        84
+      ],
+      "contourAcceptedCells": 34427,
+      "contourSha256": "97210678e0dd4167b35d1d737b6a3e842851ff5354920d9ef358295259ff4db2",
+      "dpi": 144,
+      "fontSizes": [
+        26,
+        18
+      ],
+      "hitRects": [
+        [
+          3,
+          18,
+          387,
+          108
+        ]
+      ],
+      "iconSize": 42,
+      "icons": [
+        [
+          "claude",
+          30,
+          63
+        ]
+      ],
+      "mode": "claude-only",
+      "size": [
+        390,
+        126
+      ],
+      "textX": [
+        62,
+        170,
+        278
+      ]
+    },
+    {
+      "baselines": [
+        62,
+        112
+      ],
+      "contourAcceptedCells": 61057,
+      "contourSha256": "fc9854a84185206950fe1ce4c3d6666c505b5c3db5e5cc22ff0f2cdf07ff1e6e",
+      "dpi": 192,
+      "fontSizes": [
+        34,
+        24
+      ],
+      "hitRects": [
+        [
+          4,
+          24,
+          516,
+          144
+        ]
+      ],
+      "iconSize": 56,
+      "icons": [
+        [
+          "claude",
+          40,
+          84
+        ]
+      ],
+      "mode": "claude-only",
+      "size": [
+        520,
+        168
+      ],
+      "textX": [
+        82,
+        226,
+        370
+      ]
+    },
+    {
+      "baselines": [
+        31,
+        56
+      ],
+      "contourAcceptedCells": 7089,
+      "contourSha256": "703b62a07657c81aa9e759fb90557d1c2fa9110edcba05083229d6fe18f3176f",
+      "dpi": 96,
+      "fontSizes": [
+        17,
+        12
+      ],
+      "hitRects": [
+        [
+          2,
+          12,
+          122,
+          72
+        ]
+      ],
+      "iconSize": 28,
+      "icons": [
+        [
+          "codex",
+          20,
+          42
+        ]
+      ],
+      "mode": "codex-one-window",
+      "size": [
+        124,
+        84
+      ],
+      "textX": [
+        41
+      ]
+    },
+    {
+      "baselines": [
+        39,
+        70
+      ],
+      "contourAcceptedCells": 11052,
+      "contourSha256": "dbde0f97e1475e03c54318f124a8c1dc7489a6bef2bfefad10081aca13961c23",
+      "dpi": 120,
+      "fontSizes": [
+        21,
+        15
+      ],
+      "hitRects": [
+        [
+          2,
+          15,
+          152,
+          90
+        ]
+      ],
+      "iconSize": 35,
+      "icons": [
+        [
+          "codex",
+          25,
+          52
+        ]
+      ],
+      "mode": "codex-one-window",
+      "size": [
+        155,
+        105
+      ],
+      "textX": [
+        51
+      ]
+    },
+    {
+      "baselines": [
+        46,
+        84
+      ],
+      "contourAcceptedCells": 15863,
+      "contourSha256": "dc90afc262f659b18bb5186d800e198d022757b9d76e3737cb4c53acbc4c62dc",
+      "dpi": 144,
+      "fontSizes": [
+        26,
+        18
+      ],
+      "hitRects": [
+        [
+          3,
+          18,
+          183,
+          108
+        ]
+      ],
+      "iconSize": 42,
+      "icons": [
+        [
+          "codex",
+          30,
+          63
+        ]
+      ],
+      "mode": "codex-one-window",
+      "size": [
+        186,
+        126
+      ],
+      "textX": [
+        62
+      ]
+    },
+    {
+      "baselines": [
+        62,
+        112
+      ],
+      "contourAcceptedCells": 28145,
+      "contourSha256": "194287c01a3ab95017ce289c5b5b0c6ac41bef4354f8c9ab826f8db5fa3b3c29",
+      "dpi": 192,
+      "fontSizes": [
+        34,
+        24
+      ],
+      "hitRects": [
+        [
+          4,
+          24,
+          244,
+          144
+        ]
+      ],
+      "iconSize": 56,
+      "icons": [
+        [
+          "codex",
+          40,
+          84
+        ]
+      ],
+      "mode": "codex-one-window",
+      "size": [
+        248,
+        168
+      ],
+      "textX": [
+        82
+      ]
+    },
+    {
+      "baselines": [
+        31,
+        56
+      ],
+      "contourAcceptedCells": 11481,
+      "contourSha256": "f9914298e9ae9fcf39f52f7690128d5178b0397165e966cf1058704c5fa6abcb",
+      "dpi": 96,
+      "fontSizes": [
+        17,
+        12
+      ],
+      "hitRects": [
+        [
+          2,
+          12,
+          194,
+          72
+        ]
+      ],
+      "iconSize": 28,
+      "icons": [
+        [
+          "codex",
+          20,
+          42
+        ]
+      ],
+      "mode": "codex-two-window",
+      "size": [
+        196,
+        84
+      ],
+      "textX": [
+        41,
+        113
+      ]
+    },
+    {
+      "baselines": [
+        39,
+        70
+      ],
+      "contourAcceptedCells": 17892,
+      "contourSha256": "50c6214022a99c79707d90245d50af80f7903245bb0b2a5f85b0a4ea1a3a0173",
+      "dpi": 120,
+      "fontSizes": [
+        21,
+        15
+      ],
+      "hitRects": [
+        [
+          2,
+          15,
+          242,
+          90
+        ]
+      ],
+      "iconSize": 35,
+      "icons": [
+        [
+          "codex",
+          25,
+          52
+        ]
+      ],
+      "mode": "codex-two-window",
+      "size": [
+        245,
+        105
+      ],
+      "textX": [
+        51,
+        141
+      ]
+    },
+    {
+      "baselines": [
+        46,
+        84
+      ],
+      "contourAcceptedCells": 25691,
+      "contourSha256": "1bf25a5cb1379118b87734d6305f19e7d6a0fc0c15c5c4b5988d3639a9ea5346",
+      "dpi": 144,
+      "fontSizes": [
+        26,
+        18
+      ],
+      "hitRects": [
+        [
+          3,
+          18,
+          291,
+          108
+        ]
+      ],
+      "iconSize": 42,
+      "icons": [
+        [
+          "codex",
+          30,
+          63
+        ]
+      ],
+      "mode": "codex-two-window",
+      "size": [
+        294,
+        126
+      ],
+      "textX": [
+        62,
+        170
+      ]
+    },
+    {
+      "baselines": [
+        62,
+        112
+      ],
+      "contourAcceptedCells": 45569,
+      "contourSha256": "804aeaf5c5b82400edb38e6d1a082ad3c686ed5007099f19ec5514880b477286",
+      "dpi": 192,
+      "fontSizes": [
+        34,
+        24
+      ],
+      "hitRects": [
+        [
+          4,
+          24,
+          388,
+          144
+        ]
+      ],
+      "iconSize": 56,
+      "icons": [
+        [
+          "codex",
+          40,
+          84
+        ]
+      ],
+      "mode": "codex-two-window",
+      "size": [
+        392,
+        168
+      ],
+      "textX": [
+        82,
+        226
+      ]
+    }
+  ],
+  "native": {
+    "alignedPhysicalRectangles": true,
+    "foregroundAlphaByte": 255,
+    "foregroundDirectlyAboveRear": true,
+    "rearAlphaByte": 1,
+    "transparentKey": "#010203",
+    "windowCount": 2
+  },
+  "providers": {
+    "defaults": [
+      "auto",
+      "auto"
+    ],
+    "installedLaterVisible": true,
+    "lastGoodRetainedVisible": true,
+    "unusedHidden": true
+  },
+  "readyAppearance": {
+    "defaultMode": "monochrome",
+    "reset": "#b8b8b8",
+    "value": "#ffffff"
+  },
+  "schemaVersion": "g04-ui-native-v1",
+  "startup": {
+    "freshEnabled": true,
+    "userOffRoundTrips": true
+  },
+  "typography": {
+    "resetFamily": "Segoe UI",
+    "valueFamily": "Segoe UI Semibold"
+  }
+}

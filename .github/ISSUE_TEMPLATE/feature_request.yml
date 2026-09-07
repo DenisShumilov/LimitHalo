@@ -1,0 +1,51 @@
+name: Feature request
+description: Propose a bounded, privacy-preserving improvement
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Version 1 has no telemetry, quota history, browser/chat/log access, local server, admin service, automatic updater, or additional providers. Requests that weaken explicit consent or fail-closed validation need a new security design, not a small feature patch.
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+      description: Describe the observable need without including private account data.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - Transparent HUD
+        - Context menu
+        - Settings or onboarding
+        - Privacy or safe diagnostics
+        - Installer or portable package
+        - Build or fixture tooling
+    validations:
+      required: true
+  - type: textarea
+    id: privacy
+    attributes:
+      label: Privacy and security impact
+      description: State any new read, write, process, network, or persistence capability. Write "none" only after checking.
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Boundary confirmation
+      options:
+        - label: This request does not require attaching credentials, raw provider data, chats, browser data, absolute user paths, or logs.
+          required: true
+        - label: This request does not assume a daily Codex limit; duration labels remain derived from validated provider windows.
+          required: true
