@@ -75,9 +75,11 @@ Fresh installation, upgrade, failed-validation rollback, uninstall, settings cho
 
 ## Hosted workflow is a separate path
 
+The automatic `.github/workflows/validate.yml` workflow uses **Python 3.12.10 x64** for fixture validation on Windows 2025. This is a validation-only interpreter pin: the Actions Python catalog has a Windows binary for 3.12.10, but not 3.12.13. It does not change the production build/runtime identity, which remains locked to 3.12.13. Validation still checks the exact eight-wheel build lock, rejects a deliberately changed wheel, installs offline with required hashes, and runs the full application and release-fixture suites. The CI regression tests keep these boundaries explicit.
+
 The manual workflow `.github/workflows/release.yml` requires a full lowercase commit SHA as `source_ref`. Its build job is guarded by `github.ref_protected`: dispatch it from a protected branch/ref. An unprotected dispatch ref skips the job, even if the `source_ref` input names an otherwise valid commit. Configure the appropriate branch protection or ruleset before using this path; do not remove the guard to make a launch screenshot look green.
 
-The hosted path has a distinct acquisition step on a disposable Windows runner, unlike the local pre-staged route. It produces an unsigned candidate artifact with read-only repository permissions. It does **not** create or publish a GitHub Release. Hosted execution has not been observed for this publication repository; checked-in workflow syntax does not guarantee a successful remote run.
+The manual hosted build path has a distinct acquisition step on a disposable Windows runner, unlike the local pre-staged route. It produces an unsigned candidate artifact with read-only repository permissions. It does **not** create or publish a GitHub Release. A successful automatic Validate run is not a hosted release build. The manual build still requires its exact 3.12.13 Windows toolchain to become available; its execution has not been established. Checked-in workflow syntax does not guarantee a successful remote build.
 
 ## Release identity
 
