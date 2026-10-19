@@ -150,7 +150,7 @@ class G03ProtocolTests(unittest.TestCase):
         self.assertTrue(account_is_usable({
             "account": {"type": "chatgpt", "ignored": "metadata"},
             "requiresOpenaiAuth": False,
-            "email": "ignored@example.invalid",
+            "email": "shmlvofficial@gmail.com",
         }))
         for malformed in (
             {"account": None},
@@ -261,7 +261,7 @@ class G03ProtocolTests(unittest.TestCase):
                 "result": {
                     "account": {"type": "chatgpt", "ignored": "metadata"},
                     "requiresOpenaiAuth": False,
-                    "email": "ignored@example.invalid",
+                    "email": "shmlvofficial@gmail.com",
                 },
             },
             remote_status,

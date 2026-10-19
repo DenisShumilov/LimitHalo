@@ -68,7 +68,7 @@ class ValidationContractTests(unittest.TestCase):
             expected = b'{"fixture":"locked bytes"}\n'
             (root / "lock.json").write_bytes(expected)
             run("-c", "core.autocrlf=false", "add", "lock.json")
-            run("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+            run("-c", "user.name=Fixture", "-c", "user.email=shmlvofficial@gmail.com",
                 "commit", "--quiet", "-m", "Inert archive fixture")
             run("-c", "core.autocrlf=true", "archive", "--format=zip", "--output=bad.zip", "HEAD")
             run("-c", "core.autocrlf=true", "-c", "core.autocrlf=false", "archive",
